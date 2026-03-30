@@ -3,25 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* 画布尺寸 */
-  --canvas-width: 1440px;
-  --canvas-height: 1920px;
-  --safe-margin: 80px;
-
-  /* 颜色 */
-  --canvas-bg: #F8F7F5;
-  --bubble-left: #E8EAF6;
-  --bubble-right: #F5F1E8;
-  --shadow-left: #D1D9E6;
-  --shadow-right: #E8DFC8;
-  --text-primary: #333333;
+  /* 画布背景 - 暖白 */
+  --canvas-bg: #FAF9F6;
+  /* 文字色 */
+  --text-primary: #2C2C2C;
   --text-secondary: #666666;
-
-  /* 圆角和间距 */
-  --bubble-radius: 12px;
-  --block-padding: 20px;
-  --font-size: 16px;
-  --line-height: 1.6;
 }
 
 * {
@@ -38,8 +24,8 @@ html, body, #root {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans SC', sans-serif;
-  font-size: var(--font-size);
-  line-height: var(--line-height);
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--text-primary);
   background-color: #1a1a1a;
   -webkit-font-smoothing: antialiased;
@@ -75,4 +61,10 @@ textarea {
 
 textarea:focus {
   outline: none;
+}
+
+/* 导出时使用的宋体字体 */
+.export-font {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN",
+    "STSong", "SimSun", serif;
 }

@@ -7,36 +7,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 背景色
-        'canvas-bg': '#F8F7F5',
-        // 对话气泡颜色
-        'bubble-left': '#E8EAF6',
-        'bubble-right': '#F5F1E8',
-        // 阴影色
-        'shadow-left': '#D1D9E6',
-        'shadow-right': '#E8DFC8',
+        // 背景色 - 暖白
+        'canvas-bg': '#FAF9F6',
+        // 对话气泡颜色 - 雾感
+        'bubble-left': 'rgba(240, 242, 244, 0.85)',
+        'bubble-right': 'rgba(245, 242, 237, 0.85)',
         // 文字色
-        'text-primary': '#333333',
+        'text-primary': '#2C2C2C',
         'text-secondary': '#666666',
         // 边框色
         'border-light': '#E5E5E5',
       },
       borderRadius: {
-        'bubble': '12px',
-      },
-      boxShadow: {
-        'bubble-left': 'inset 0 1px 4px 0 #D1D9E6',
-        'bubble-right': 'inset 0 1px 4px 0 #E8DFC8',
+        'bubble': '16px',
       },
       fontSize: {
-        'dialogue': ['16px', { lineHeight: '1.6' }],
+        'dialogue-large': ['18px', { lineHeight: '1.75' }],
+        'dialogue-small': ['14px', { lineHeight: '1.75' }],
       },
-      spacing: {
-        'canvas-w': '1440px',
-        'canvas-h': '1920px',
-        'safe': '80px',
-        'block-gap': '24px',
-      }
+      fontFamily: {
+        'serif': ['"Noto Serif SC"', '"Source Han Serif SC"', '"Source Han Serif CN"', 'serif'],
+      },
     },
   },
   plugins: [],

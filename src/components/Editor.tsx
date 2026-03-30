@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
-import { Spacing, SPACING_VALUES } from '../types';
+import { Spacing, CANVAS_PRESETS, CanvasPreset } from '../types';
 import {
   Plus,
   Trash2,
@@ -41,7 +41,6 @@ export function Editor() {
   const currentPage = project.pages[currentPageIndex];
   const selectedBlock = currentPage?.blocks.find((b) => b.id === selectedBlockId);
 
-  // 获取当前选中的块在当前页中的索引
   const selectedBlockIndex = currentPage?.blocks.findIndex((b) => b.id === selectedBlockId) ?? -1;
   const isFirstBlock = selectedBlockIndex === 0;
   const isLastBlock = selectedBlockIndex === currentPage?.blocks.length - 1;
@@ -74,6 +73,10 @@ export function Editor() {
     if (selectedBlockId && currentPageIndex < project.pages.length - 1) {
       moveBlockToPage(selectedBlockId, currentPageIndex, currentPageIndex + 1);
     }
+  };
+
+  const handleCanvasPresetChange = (preset: CanvasPreset) => {
+    updateProject({ canvasPreset: preset });
   };
 
   return (
@@ -164,14 +167,14 @@ export function Editor() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleAddBlock('left')}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white text-sm"
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-600 hover:bg-slate-500 rounded text-white text-sm"
                 >
                   <Plus size={16} />
                   左侧发言
                 </button>
                 <button
                   onClick={() => handleAddBlock('right')}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-amber-600 hover:bg-amber-500 rounded text-white text-sm"
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-amber-700 hover:bg-amber-600 rounded text-white text-sm"
                 >
                   <Plus size={16} />
                   右侧发言
@@ -201,7 +204,7 @@ export function Editor() {
                       <div className="flex items-center justify-between mb-2">
                         <span
                           className={`text-xs px-2 py-0.5 rounded ${
-                            isLeft ? 'bg-blue-600 text-white' : 'bg-amber-600 text-white'
+                            isLeft ? 'bg-slate-500 text-white' : 'bg-amber-600 text-white'
                           }`}
                         >
                           {isLeft ? '左' : '右'}
@@ -253,7 +256,7 @@ export function Editor() {
                         className={`px-3 py-1 text-xs rounded ${
                           selectedBlock.participantId === p.id
                             ? p.side === 'left'
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-slate-500 text-white'
                               : 'bg-amber-600 text-white'
                             : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
                         }`}
@@ -276,7 +279,7 @@ export function Editor() {
                         }
                         className={`px-3 py-1 text-xs rounded ${
                           selectedBlock.spacing === spacing
-                            ? 'bg-green-600 text-white'
+                            ? 'bg-emerald-600 text-white'
                             : 'bg-neutral-700 text-neutral-400 hover:bg-neutral-600'
                         }`}
                       >
@@ -310,14 +313,14 @@ export function Editor() {
                     className="flex items-center gap-1 px-2 py-1 text-xs bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-neutral-300"
                   >
                     <ChevronLeft size={14} />
-                    移到上页
+                    上页
                   </button>
                   <button
                     onClick={handleMoveToNextPage}
                     disabled={currentPageIndex === project.pages.length - 1}
                     className="flex items-center gap-1 px-2 py-1 text-xs bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-neutral-300"
                   >
-                    移到下页
+                    下页
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -328,6 +331,26 @@ export function Editor() {
 
         {activeTab === 'style' && (
           <div className="p-4 space-y-4">
+            {/* 画布尺寸 */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-neutral-300">画布尺寸</h3>
+              <div className="flex gap-2">
+                {(Object.keys(CANVAS_PRESETS) as CanvasPreset[]).map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => handleCanvasPresetChange(preset)}
+                    className={`flex-1 px-3 py-2 text-xs rounded ${
+                      project.canvasPreset === preset
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                    }`}
+                  >
+                    {CANVAS_PRESETS[preset].name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* 头像设置 */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-neutral-300">头像设置</h3>
@@ -339,8 +362,8 @@ export function Editor() {
                       background: participant.avatarUrl
                         ? `url(${participant.avatarUrl}) center/cover`
                         : participant.side === 'left'
-                        ? 'linear-gradient(135deg, #93C5FD, #A78BFA)'
-                        : 'linear-gradient(135deg, #FCD34D, #F97316)',
+                        ? 'linear-gradient(135deg, #B8C5D0 0%, #9BAAB8 100%)'
+                        : 'linear-gradient(135deg, #D4C4B0 0%, #C2B094 100%)',
                     }}
                   >
                     {!participant.avatarUrl && (
@@ -430,7 +453,7 @@ export function Editor() {
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-neutral-300">导出图片</h3>
               <p className="text-xs text-neutral-500">
-                导出尺寸: 1440 x 1920 像素，2x 高清
+                当前尺寸: {CANVAS_PRESETS[project.canvasPreset].width} x {CANVAS_PRESETS[project.canvasPreset].height} 像素，2x 高清
               </p>
             </div>
 
@@ -444,7 +467,7 @@ export function Editor() {
               </button>
               <button
                 onClick={exportAllPages}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-500 rounded-lg text-white font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-medium"
               >
                 <Download size={18} />
                 导出全部页面 ({project.pages.length} 页)

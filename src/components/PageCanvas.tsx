@@ -1,4 +1,4 @@
-import { Page, Project, CANVAS_WIDTH, CANVAS_HEIGHT, SAFE_MARGIN } from '../types';
+import { Page, Project, getCanvasSize, getSafeMargin } from '../types';
 import { DialogueBlock } from './DialogueBlock';
 import { useStore } from '../store/useStore';
 
@@ -10,39 +10,62 @@ interface PageCanvasProps {
 
 export function PageCanvas({ page, pageIndex, project }: PageCanvasProps) {
   const { selectedBlockId, setSelectedBlockId } = useStore();
+  const { width, height } = getCanvasSize(project.canvasPreset);
+  const safeMargin = getSafeMargin(project.canvasPreset);
 
   const getParticipant = (participantId: string) => {
     return project.participants.find((p) => p.id === participantId)!;
   };
 
+  // 标题区域样式
+  const titleFontSize = project.canvasPreset === 'large' ? 36 : 28;
+  const subtitleFontSize = project.canvasPreset === 'large' ? 18 : 14;
+  const headerPaddingBottom = project.canvasPreset === 'large' ? 48 : 36;
+
   return (
     <div
       data-page-index={pageIndex}
-      className="relative bg-[#F8F7F5] flex flex-col"
+      className="relative flex flex-col"
       style={{
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
+        width,
+        height,
         flexShrink: 0,
+        backgroundColor: '#FAF9F6',
+        fontFamily: '"Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN", serif',
       }}
     >
-      {/* 顶部区域 */}
+      {/* 顶部区域 - 器物铭牌感 */}
       {project.showHeader && (
         <div
           className="flex-shrink-0 text-center"
           style={{
-            paddingTop: SAFE_MARGIN,
-            paddingBottom: 40,
-            paddingLeft: SAFE_MARGIN,
-            paddingRight: SAFE_MARGIN,
+            paddingTop: safeMargin,
+            paddingBottom: headerPaddingBottom,
+            paddingLeft: safeMargin,
+            paddingRight: safeMargin,
           }}
         >
           {project.title && (
-            <h1 className="text-[32px] font-semibold text-[#333333] mb-2">
+            <h1
+              style={{
+                fontSize: titleFontSize,
+                fontWeight: 500,
+                color: '#2C2C2C',
+                marginBottom: 8,
+                letterSpacing: '0.02em',
+              }}
+            >
               {project.title}
             </h1>
           )}
           {project.subtitle && (
-            <p className="text-[18px] text-[#666666]">
+            <p
+              style={{
+                fontSize: subtitleFontSize,
+                color: '#666666',
+                letterSpacing: '0.04em',
+              }}
+            >
               {project.subtitle}
             </p>
           )}
@@ -53,9 +76,9 @@ export function PageCanvas({ page, pageIndex, project }: PageCanvasProps) {
       <div
         className="flex-1 overflow-hidden"
         style={{
-          paddingLeft: SAFE_MARGIN,
-          paddingRight: SAFE_MARGIN,
-          paddingTop: project.showHeader ? 0 : SAFE_MARGIN,
+          paddingLeft: safeMargin,
+          paddingRight: safeMargin,
+          paddingTop: project.showHeader ? 0 : safeMargin,
         }}
       >
         {page.blocks.map((block) => (
@@ -63,24 +86,31 @@ export function PageCanvas({ page, pageIndex, project }: PageCanvasProps) {
             key={block.id}
             block={block}
             participant={getParticipant(block.participantId)}
+            preset={project.canvasPreset}
             isSelected={selectedBlockId === block.id}
             onClick={() => setSelectedBlockId(block.id)}
           />
         ))}
       </div>
 
-      {/* 底部区域 */}
+      {/* 底部区域 - 呼吸区 */}
       {project.showFooter && (
         <div
           className="flex-shrink-0 flex items-center justify-center"
           style={{
-            height: SAFE_MARGIN,
-            paddingLeft: SAFE_MARGIN,
-            paddingRight: SAFE_MARGIN,
+            height: safeMargin,
+            paddingLeft: safeMargin,
+            paddingRight: safeMargin,
           }}
         >
           {project.showPageNumber && (
-            <span className="text-[14px] text-[#999999]">
+            <span
+              style={{
+                fontSize: 12,
+                color: '#999999',
+                letterSpacing: '0.1em',
+              }}
+            >
               {pageIndex + 1} / {project.pages.length}
             </span>
           )}

@@ -1,68 +1,132 @@
-import { DialogueBlock as DialogueBlockType, Participant, SPACING_VALUES } from '../types';
+import {
+  DialogueBlock as DialogueBlockType,
+  Participant,
+  Spacing,
+  getSpacingValues,
+  getAvatarSize,
+  CanvasPreset,
+} from '../types';
 
 interface DialogueBlockProps {
   block: DialogueBlockType;
   participant: Participant;
+  preset: CanvasPreset;
   isSelected?: boolean;
   onClick?: () => void;
 }
 
-export function DialogueBlock({ block, participant, isSelected, onClick }: DialogueBlockProps) {
+export function DialogueBlock({
+  block,
+  participant,
+  preset,
+  isSelected,
+  onClick,
+}: DialogueBlockProps) {
   const isLeft = participant.side === 'left';
-  const spacing = SPACING_VALUES[block.spacing];
+  const spacing = getSpacingValues(preset)[block.spacing];
+  const avatarSize = getAvatarSize(preset);
+  const gap = preset === 'large' ? 20 : 15;
 
+  // 气泡样式 - 雾感、极浅半透明
   const bubbleStyle = {
-    backgroundColor: isLeft ? '#E8EAF6' : '#F5F1E8',
-    boxShadow: `inset 0 1px 4px 0 ${isLeft ? '#D1D9E6' : '#E8DFC8'}`,
+    backgroundColor: isLeft
+      ? 'rgba(240, 242, 244, 0.85)' // 偏冷，淡青灰
+      : 'rgba(245, 242, 237, 0.85)', // 偏暖，淡米色
+    boxShadow: isLeft
+      ? '0 1px 3px rgba(200, 210, 220, 0.15), 0 1px 2px rgba(200, 210, 220, 0.1)'
+      : '0 1px 3px rgba(210, 200, 180, 0.15), 0 1px 2px rgba(210, 200, 180, 0.1)',
+    borderRadius: 16,
   };
+
+  // 字体大小
+  const fontSize = preset === 'large' ? 18 : 14;
+  const padding = preset === 'large' ? 28 : 22;
 
   return (
     <div
-      className={`flex items-start gap-4 cursor-pointer transition-all ${
-        isSelected ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#F8F7F5]' : ''
+      className={`flex items-start cursor-pointer transition-all ${
+        isSelected ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#FAF9F6]' : ''
       }`}
       style={{ marginBottom: spacing }}
       onClick={onClick}
     >
-      {/* 头像区域 */}
-      <div
-        className={`flex-shrink-0 ${isLeft ? 'order-1' : 'order-3'}`}
-        style={{ width: 48, height: 48 }}
-      >
-        {participant.avatarUrl ? (
-          <img
-            src={participant.avatarUrl}
-            alt=""
-            className="w-full h-full rounded-full object-cover border-2 border-white"
-          />
-        ) : (
-          <div
-            className={`w-full h-full rounded-full border-2 border-white ${
-              isLeft
-                ? 'bg-gradient-to-br from-blue-300 to-purple-400'
-                : 'bg-gradient-to-br from-amber-200 to-orange-300'
-            }`}
-          />
-        )}
-      </div>
-
-      {/* 对话气泡 */}
-      <div
-        className={`flex-1 order-2 ${isLeft ? '' : 'flex justify-end'}`}
-      >
+      {/* 左侧头像 */}
+      {isLeft && (
         <div
-          className="inline-block max-w-[85%] px-5 py-4 text-[16px] leading-[1.6] text-[#333333]"
-          style={{
-            ...bubbleStyle,
-            borderRadius: 12,
-            wordBreak: 'break-word',
-          }}
+          className="flex-shrink-0"
+          style={{ width: avatarSize, height: avatarSize, marginRight: gap }}
         >
-          {block.text || (
-            <span className="text-[#999999] italic">点击输入内容...</span>
+          {participant.avatarUrl ? (
+            <img
+              src={participant.avatarUrl}
+              alt=""
+              className="w-full h-full rounded-full object-cover"
+              style={{ border: '2px solid rgba(255,255,255,0.8)' }}
+            />
+          ) : (
+            <div
+              className="w-full h-full rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #B8C5D0 0%, #9BAAB8 100%)',
+                border: '2px solid rgba(255,255,255,0.8)',
+              }}
+            />
           )}
         </div>
+      )}
+
+      {/* 对话气泡 */}
+      <div className="flex-1">
+        <div
+          className="inline-block max-w-[92%]"
+          style={{
+            ...bubbleStyle,
+            padding: padding,
+          }}
+        >
+          <div
+            style={{
+              fontSize,
+              lineHeight: 1.75,
+              color: '#2C2C2C',
+              fontFamily: '"Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN", serif',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}
+          >
+            {block.text || (
+              <span style={{ color: '#999999', fontStyle: 'italic' }}>
+                点击输入内容...
+              </span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* 右侧头像 */}
+      {!isLeft && (
+        <div
+          className="flex-shrink-0"
+          style={{ width: avatarSize, height: avatarSize, marginLeft: gap }}
+        >
+          {participant.avatarUrl ? (
+            <img
+              src={participant.avatarUrl}
+              alt=""
+              className="w-full h-full rounded-full object-cover"
+              style={{ border: '2px solid rgba(255,255,255,0.8)' }}
+            />
+          ) : (
+            <div
+              className="w-full h-full rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, #D4C4B0 0%, #C2B094 100%)',
+                border: '2px solid rgba(255,255,255,0.8)',
+              }}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

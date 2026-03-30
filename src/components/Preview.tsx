@@ -1,6 +1,5 @@
 import { useStore } from '../store/useStore';
 import { PageCanvas } from './PageCanvas';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../types';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 
 export function Preview() {
@@ -11,7 +10,7 @@ export function Preview() {
   };
 
   const handleZoomOut = () => {
-    setPreviewScale(Math.max(previewScale - 0.1, 0.2));
+    setPreviewScale(Math.max(previewScale - 0.1, 0.15));
   };
 
   return (
