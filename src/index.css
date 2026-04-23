@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* 画布背景 - 暖白 */
-  --canvas-bg: #FAF9F6;
+  /* 画布背景 - 现代浅灰 */
+  --canvas-bg: #F0F0F3;
   /* 文字色 */
-  --text-primary: #2C2C2C;
-  --text-secondary: #666666;
+  --text-primary: #1A1A1A;
+  --text-secondary: #8E8E93;
 }
 
 * {

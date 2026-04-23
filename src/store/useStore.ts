@@ -7,7 +7,8 @@ import {
   Participant,
   DEFAULT_THEME,
   getCanvasSize,
-  CanvasPreset,
+  ThemePreset,
+  LONG_IMAGE,
 } from '../types';
 
 // 生成唯一ID
@@ -88,6 +89,8 @@ const defaultProject: Project = {
   showFooter: true,
   showPageNumber: true,
   canvasPreset: 'large',
+  layoutMode: 'paged',
+  fontSize: 'medium',
   pages: defaultPages,
   participants: defaultParticipants,
   theme: DEFAULT_THEME,
@@ -115,6 +118,7 @@ interface StoreState {
   updateBlock: (pageIndex: number, blockId: string, updates: Partial<DialogueBlock>) => void;
   deleteBlock: (pageIndex: number, blockId: string) => void;
   moveBlock: (pageIndex: number, blockId: string, direction: 'up' | 'down') => void;
+  reorderBlocks: (pageIndex: number, oldIndex: number, newIndex: number) => void;
   setSelectedBlockId: (blockId: string | null) => void;
 
   // 参与者操作
@@ -127,6 +131,9 @@ interface StoreState {
   // 导出
   exportPage: (pageIndex: number) => Promise<void>;
   exportAllPages: () => Promise<void>;
+
+  // 配色方案
+  applyThemePreset: (preset: ThemePreset) => void;
 }
 
 export const useStore = create<StoreState>()(
@@ -247,6 +254,17 @@ export const useStore = create<StoreState>()(
           return { project: { ...state.project, pages } };
         }),
 
+      reorderBlocks: (pageIndex, oldIndex, newIndex) =>
+        set((state) => {
+          const pages = [...state.project.pages];
+          const blocks = [...pages[pageIndex].blocks];
+          if (oldIndex < 0 || oldIndex >= blocks.length || newIndex < 0 || newIndex >= blocks.length) return state;
+          const [moved] = blocks.splice(oldIndex, 1);
+          blocks.splice(newIndex, 0, moved);
+          pages[pageIndex] = { ...pages[pageIndex], blocks };
+          return { project: { ...state.project, pages } };
+        }),
+
       setSelectedBlockId: (blockId) => set({ selectedBlockId: blockId }),
 
       // 参与者操作
@@ -267,21 +285,35 @@ export const useStore = create<StoreState>()(
       // 导出
       exportPage: async (pageIndex) => {
         const { project } = get();
-        const canvas = document.querySelector(`[data-page-index="${pageIndex}"]`);
+        const canvas = document.querySelector(`[data-page-index="${pageIndex}"]`) as HTMLElement | null;
         if (!canvas) return;
 
-        const { width, height } = getCanvasSize(project.canvasPreset);
+        const isLongMode = project.layoutMode === 'long';
+        let exportWidth: number;
+        let exportHeight: number;
+
+        if (isLongMode) {
+          exportWidth = LONG_IMAGE.width;
+          exportHeight = Math.min(canvas.scrollHeight, LONG_IMAGE.maxHeight);
+        } else {
+          const size = getCanvasSize(project.canvasPreset);
+          exportWidth = size.width;
+          exportHeight = size.height;
+        }
+
         const { toPng } = await import('html-to-image');
         const dataUrl = await toPng(canvas, {
-          width,
-          height,
+          width: exportWidth,
+          height: exportHeight,
           pixelRatio: 2,
           cacheBust: true,
-          fontEmbedCSS: '',
+          fontEmbedCSS: `@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');`,
         });
 
         const link = document.createElement('a');
-        link.download = `dialogue-${String(pageIndex + 1).padStart(2, '0')}.png`;
+        link.download = isLongMode
+          ? `dialogue-long.png`
+          : `dialogue-${String(pageIndex + 1).padStart(2, '0')}.png`;
         link.href = dataUrl;
         link.click();
       },
@@ -293,12 +325,34 @@ export const useStore = create<StoreState>()(
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
       },
+
+      applyThemePreset: (preset) =>
+        set((state) => ({
+          project: { ...state.project, theme: preset.theme },
+        })),
     }),
     {
       name: 'dialogue-poster-storage',
       partialize: (state) => ({
         project: state.project,
       }),
+      merge: (persisted, current) => {
+        const persistedState = persisted as Partial<StoreState>;
+        if (!persistedState?.project) return current;
+        // Merge persisted project with defaults to handle missing fields
+        return {
+          ...current,
+          ...persistedState,
+          project: {
+            ...current.project,
+            ...persistedState.project,
+            theme: {
+              ...current.project.theme,
+              ...persistedState.project.theme,
+            },
+          },
+        };
+      },
     }
   )
 );

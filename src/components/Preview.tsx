@@ -37,22 +37,24 @@ export function Preview() {
           </button>
         </div>
 
-        {/* 页面切换 */}
-        <div className="flex items-center gap-2">
-          {project.pages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentPageIndex(index)}
-              className={`px-3 py-1 rounded text-sm ${
-                currentPageIndex === index
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
-              }`}
-            >
-              第 {index + 1} 页
-            </button>
-          ))}
-        </div>
+        {/* 页面切换 — 长图模式隐藏 */}
+        {project.layoutMode !== 'long' && (
+          <div className="flex items-center gap-2">
+            {project.pages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPageIndex(index)}
+                className={`px-3 py-1 rounded text-sm ${
+                  currentPageIndex === index
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                }`}
+              >
+                第 {index + 1} 页
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 预览区域 */}
